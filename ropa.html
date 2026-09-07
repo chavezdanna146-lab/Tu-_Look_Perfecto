@@ -1,0 +1,428 @@
+Aquí tienes el código completo con exactamente la misma estructura, estilos y funciones, únicamente retirando los productos Vestido Casual Elegante y Camiseta Básica Blanca:
+
+HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ropa - Tu Look Perfecto</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; }
+
+        header {
+            background-color: #0f172a; display: flex; justify-content: space-between;
+            align-items: center; padding: 15px 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { color: #8b5cf6; font-size: 24px; font-weight: bold; }
+        nav { display: flex; align-items: center; }
+        nav a { color: #cbd5e1; text-decoration: none; margin-left: 20px; font-size: 16px; }
+        nav a:hover, nav a.active { color: #8b5cf6; font-weight: bold; }
+
+        .btn-carrito-header {
+            background: #8b5cf6; color: white; border: none; padding: 8px 15px;
+            border-radius: 20px; cursor: pointer; font-weight: bold; margin-left: 25px;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .btn-carrito-header:hover { background: #7c3aed; }
+        .badge-carrito { background: #ef4444; color: white; border-radius: 50%; padding: 2px 7px; font-size: 12px; }
+
+        .container { padding: 40px 20px; max-width: 1200px; margin: auto; text-align: center; }
+        .filtros { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; }
+        
+        .btn-filtro {
+            background-color: #e2e8f0; color: #1e293b; text-decoration: none;
+            padding: 8px 18px; border-radius: 20px; font-weight: 600; transition: 0.3s;
+        }
+        .btn-filtro:hover, .btn-filtro.activo { background-color: #7c3aed; color: white; }
+
+        .catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 25px; }
+        .card-producto { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: transform 0.3s; }
+        .card-producto:hover { transform: translateY(-5px); }
+        .card-producto img { width: 100%; height: 220px; object-fit: cover; }
+        .info-producto { padding: 15px; text-align: left; }
+        
+        .categoria { font-size: 11px; font-weight: bold; padding: 3px 8px; border-radius: 10px; color: #7c3aed; background: #f3e8ff; }
+
+        .info-producto h3 { font-size: 15px; margin: 8px 0 5px 0; color: #0f172a; }
+        .precio { font-size: 18px; font-weight: bold; color: #0f172a; }
+        .btn-comprar { width: 100%; background: #0f172a; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; transition: background 0.3s; }
+        .btn-comprar:hover { background-color: #7c3aed; }
+
+        /* Estilos del Carrito Lateral */
+        .sidebar-carrito {
+            position: fixed; top: 0; right: -400px; width: 380px; height: 100%;
+            background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.2); z-index: 200;
+            transition: right 0.4s ease; display: flex; flex-direction: column;
+        }
+        .sidebar-carrito.activo { right: 0; }
+        .header-carrito { padding: 20px; background: #0f172a; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .btn-cerrar { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        .body-carrito { padding: 20px; flex: 1; overflow-y: auto; text-align: left; }
+        .item-carrito { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
+        .footer-carrito { padding: 20px; border-top: 1px solid #e2e8f0; background: #f8fafc; }
+        .total-pago { font-size: 20px; font-weight: bold; margin-bottom: 15px; text-align: right; }
+        .btn-pagar { width: 100%; background: #10b981; color: white; border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-pagar:hover { background: #059669; }
+
+        /* Estilos del Modal de Pago */
+        .modal-pago {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 300;
+        }
+        .modal-contenido { background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; text-align: left; }
+        .modal-contenido h2 { margin-bottom: 15px; color: #0f172a; }
+        .campo-form { margin-bottom: 15px; }
+        .campo-form label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 5px; }
+        .campo-form input { width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
+        .flex-campos { display: flex; gap: 10px; }
+        .btn-confirmar-pago { width: 100%; background: #8b5cf6; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn-cancelar { width: 100%; background: #cbd5e1; color: #1e293b; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Tu Look Perfecto</div>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html" class="active">Productos</a>
+            <a href="contacto.html">Contacto</a>
+            <button class="btn-carrito-header" onclick="toggleCarrito()">
+                🛒 Carrito <span class="badge-carrito" id="contador-carrito">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Sección de Ropa</h1>
+        <p>Descubre nuestra gran variedad de prendas exclusivas para tu estilo.</p>
+
+        <div class="filtros">
+            <a href="productos.html" class="btn-filtro">Todos</a>
+            <a href="ropa.html" class="btn-filtro activo">Ropa</a>
+            <a href="calzado.html" class="btn-filtro">Calzado</a>
+            <a href="accesorios.html" class="btn-filtro">Accesorios</a>
+        </div>
+
+        <div class="catalogo">
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=400" alt="Chaqueta">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Chaqueta de Cuero Negra</h3>
+                    <div class="precio">L.1500.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Chaqueta de Cuero Negra', 1500)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?q=80&w=400" alt="Vestido de Flores">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Vestido de Flores Largo</h3>
+                    <div class="precio">L.1250.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Vestido de Flores Largo', 1250)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?q=80&w=400" alt="Jeans">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Pantalón Jeans Slim Fit</h3>
+                    <div class="precio">L.950.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Pantalón Jeans Slim Fit', 950)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1576995853123-5a10305d93c0?q=80&w=400" alt="Chaqueta">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Pantalon Mezclilla Oversize</h3>
+                    <div class="precio">L.1200.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Chaqueta Mezclilla Oversize', 1200)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=400" alt="Hoodie">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Set</h3>
+                    <div class="precio">L.850.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sudadera Hoodie Urban', 850)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=400" alt="Suéter Negro">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Suéter Negro</h3>
+                    <div class="precio">L.750.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Suéter Negro', 750)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?q=80&w=400" alt="Camisa">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Camisa Manga Corta Casual</h3>
+                    <div class="precio">L.650.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Camisa Manga Corta Casual', 650)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=400" alt="Pantalón">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Pantalón Formal de Tiro Alto</h3>
+                    <div class="precio">L.890.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Pantalón Formal de Tiro Alto', 890)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=400" alt="Chaqueta">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Chaqueta Bomber Cafe</h3>
+                    <div class="precio">L.1350.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Chaqueta Bomber Verde Oliva', 1350)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1583496661160-fb5886a0aaaa?q=80&w=400" alt="Falda">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Falda Plisada Midi</h3>
+                    <div class="precio">L.720.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Falda Plisada Midi', 720)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=400" alt="Blazer">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Blazer Formal Ejecutivo</h3>
+                    <div class="precio">L.1950.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Blazer Formal Ejecutivo', 1950)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?q=80&w=400" alt="Camisa de Rayas">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Camisa Azul de Puntos</h3>
+                    <div class="precio">L.680.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Camisa de Rayas Blancas y Negras', 680)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1591195853828-11db59a44f6b?q=80&w=400" alt="Bermudas">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Bermudas Casuales de Algodón</h3>
+                    <div class="precio">L.520.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Bermudas Casuales de Algodón', 520)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1566174053879-31528523f8ae?q=80&w=400" alt="Vestido">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Vestido Largo de Noche</h3>
+                    <div class="precio">L.2100.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Vestido Largo de Noche', 2100)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?q=80&w=400" alt="Camisa Oxford">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Camisa Manga Larga Oxford</h3>
+                    <div class="precio">L.780.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Camisa Manga Larga Oxford', 780)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1574201635302-388dd92a4c3f?q=80&w=400" alt="Suéter">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Suéter Tejido de Cuello Alto</h3>
+                    <div class="precio">L.890.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Suéter Tejido de Cuello Alto', 890)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1618354691373-d851c5c3a990?q=80&w=400" alt="Camiseta Negra">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Camiseta Streetwear Negra</h3>
+                    <div class="precio">L.320.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Camiseta Streetwear Negra', 320)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=400" alt="Jumpsuit">
+                <div class="info-producto">
+                    <span class="categoria">ROPA</span>
+                    <h3>Mono Jumpsuit Elegante</h3>
+                    <div class="precio">L.1450.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Mono Jumpsuit Elegante', 1450)">Agregar al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sidebar-carrito" id="sidebar-carrito">
+        <div class="header-carrito">
+            <h2>Tu Carrito</h2>
+            <button class="btn-cerrar" onclick="toggleCarrito()">✕</button>
+        </div>
+        <div class="body-carrito" id="items-carrito">
+            <p>El carrito está vacío.</p>
+        </div>
+        <div class="footer-carrito">
+            <div class="total-pago">Total: L.<span id="total-precio">0.00</span></div>
+            <button class="btn-pagar" onclick="abrirModalPago()">Proceder al Pago 💳</button>
+        </div>
+    </div>
+
+    <div class="modal-pago" id="modal-pago">
+        <div class="modal-contenido">
+            <h2>Pago con Tarjeta</h2>
+            <form onsubmit="procesarPago(event)">
+                <div class="campo-form">
+                    <label>Nombre en la Tarjeta</label>
+                    <input type="text" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div class="campo-form">
+                    <label>Número de Tarjeta</label>
+                    <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                </div>
+                <div class="flex-campos">
+                    <div class="campo-form">
+                        <label>Expiración</label>
+                        <input type="text" placeholder="MM/AA" maxlength="5" required>
+                    </div>
+                    <div class="campo-form">
+                        <label>CVV</label>
+                        <input type="password" placeholder="123" maxlength="4" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-confirmar-pago">Pagar Ahora</button>
+                <button type="button" class="btn-cancelar" onclick="cerrarModalPago()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+        function guardarYActualizar() {
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            renderizarCarrito();
+        }
+
+        function toggleCarrito() {
+            document.getElementById('sidebar-carrito').classList.toggle('activo');
+        }
+
+        function agregarAlCarrito(nombre, precio) {
+            const itemExistente = carrito.find(item => item.nombre === nombre);
+            if (itemExistente) {
+                itemExistente.cantidad++;
+            } else {
+                carrito.push({ nombre, precio, cantidad: 1 });
+            }
+            guardarYActualizar();
+            document.getElementById('sidebar-carrito').classList.add('activo');
+        }
+
+        function cambiarCantidad(nombre, cambio) {
+            const item = carrito.find(i => i.nombre === nombre);
+            if (item) {
+                item.cantidad += cambio;
+                if (item.cantidad <= 0) {
+                    carrito = carrito.filter(i => i.nombre !== nombre);
+                }
+            }
+            guardarYActualizar();
+        }
+
+        function renderizarCarrito() {
+            const contenedor = document.getElementById('items-carrito');
+            const totalElemento = document.getElementById('total-precio');
+            const badge = document.getElementById('contador-carrito');
+
+            contenedor.innerHTML = '';
+            let total = 0;
+            let totalProductos = 0;
+
+            if (carrito.length === 0) {
+                contenedor.innerHTML = '<p>El carrito está vacío.</p>';
+            } else {
+                carrito.forEach(item => {
+                    total += item.precio * item.cantidad;
+                    totalProductos += item.cantidad;
+                    contenedor.innerHTML += `
+                        <div class="item-carrito">
+                            <div>
+                                <strong>${item.nombre}</strong><br>
+                                L.${item.precio.toFixed(2)} x ${item.cantidad}
+                            </div>
+                            <div>
+                                <button onclick="cambiarCantidad('${item.nombre}', -1)">-</button>
+                                <button onclick="cambiarCantidad('${item.nombre}', 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            totalElemento.innerText = total.toFixed(2);
+            badge.innerText = totalProductos;
+        }
+
+        function abrirModalPago() {
+            if (carrito.length === 0) {
+                alert('Tu carrito está vacío.');
+                return;
+            }
+            document.getElementById('modal-pago').style.display = 'flex';
+        }
+
+        function cerrarModalPago() {
+            document.getElementById('modal-pago').style.display = 'none';
+        }
+
+        function procesarPago(event) {
+            event.preventDefault();
+            alert('¡Pago procesado con éxito! Gracias por tu compra.');
+            carrito = [];
+            guardarYActualizar();
+            cerrarModalPago();
+            toggleCarrito();
+        }
+
+        // Cargar datos guardados al iniciar
+        renderizarCarrito();
+    </script>
+</body>
+</html>

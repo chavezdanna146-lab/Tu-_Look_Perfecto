@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calzado - Tu Look Perfecto</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; }
+
+        header {
+            background-color: #0f172a; display: flex; justify-content: space-between;
+            align-items: center; padding: 15px 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { color: #8b5cf6; font-size: 24px; font-weight: bold; }
+        nav { display: flex; align-items: center; gap: 20px; }
+        nav a { color: #cbd5e1; text-decoration: none; font-size: 16px; transition: color 0.3s; }
+        nav a:hover, nav a.active { color: #8b5cf6; font-weight: bold; }
+
+        /* Botón e Ícono del Carrito */
+        .btn-carrito-header {
+            background-color: #7c3aed;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        .btn-carrito-header:hover { background-color: #6d28d9; }
+        .badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 12px;
+        }
+
+        .container { padding: 40px 20px; max-width: 1200px; margin: auto; text-align: center; }
+        .filtros { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        
+        .btn-filtro {
+            background-color: #e2e8f0; color: #1e293b; text-decoration: none;
+            padding: 8px 18px; border-radius: 20px; font-weight: 600; transition: 0.3s;
+        }
+        .btn-filtro:hover, .btn-filtro.activo { background-color: #7c3aed; color: white; }
+
+        .catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 25px; }
+        .card-producto { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: transform 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-producto:hover { transform: translateY(-5px); }
+        .card-producto img { width: 100%; height: 220px; object-fit: cover; }
+        .info-producto { padding: 15px; text-align: left; }
+        .categoria { font-size: 11px; color: #7c3aed; font-weight: bold; background: #f3e8ff; padding: 2px 8px; border-radius: 10px; }
+        .info-producto h3 { font-size: 16px; margin: 8px 0 5px 0; color: #0f172a; }
+        .precio { font-size: 18px; font-weight: bold; color: #0f172a; }
+        .btn-comprar { width: 100%; background: #0f172a; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; transition: background 0.3s; }
+        .btn-comprar:hover { background-color: #7c3aed; }
+
+        /* Ventana Flotante del Carrito (Modal) */
+        .modal-carrito {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000;
+        }
+        .contenido-carrito {
+            background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 450px; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .contenido-carrito h2 { margin-bottom: 15px; color: #0f172a; }
+        .lista-carrito { list-style: none; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
+        .item-carrito { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .btn-eliminar-item { background: #ef4444; color: white; border: none; padding: 2px 7px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .total-box { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: right; }
+        .btn-cerrar { background: #64748b; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+        .btn-pagar { background: #7c3aed; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* Ventana Flotante del Pago con Tarjeta */
+        .modal-pago {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1100;
+        }
+        .contenido-pago {
+            background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .campo-pago { margin-bottom: 12px; }
+        .campo-pago label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #0f172a; }
+        .campo-pago input { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        .fila-doble { display: flex; gap: 10px; }
+        .btn-confirmar-pago { width: 100%; background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Tu Look Perfecto</div>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html" class="active">Productos</a>
+            <a href="contacto.html">Contacto</a>
+            <button class="btn-carrito-header" onclick="mostrarCarrito()">
+                🛒 Carrito <span class="badge" id="cant-carrito">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Sección de Calzado</h1>
+        <p>Los mejores zapatos para toda la familia.</p>
+
+        <div class="filtros">
+            <a href="productos.html" class="btn-filtro">Todos</a>
+            <a href="ropa.html" class="btn-filtro">Ropa</a>
+            <a href="calzado.html" class="btn-filtro activo">Calzado</a>
+            <a href="accesorios.html" class="btn-filtro">Accesorios</a>
+        </div>
+
+        <div class="catalogo">
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Tenis Deportivos Red Edition</h3>
+                    <div class="precio">L.6,000.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Tenis Deportivos Red Edition', 6000)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Zapatos de Tacón Azul Elegante</h3>
+                    <div class="precio">L.1,950.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Zapatos de Tacón Azul Elegante', 1950)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1514989940723-e8e51635b782?q=80&w=400" alt="Niño">
+                <div class="info-producto">
+                    <span class="categoria">NIÑO</span>
+                    <h3>Tenis Escolares Resistentes</h3>
+                    <div class="precio">L.720.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Tenis Escolares Resistentes', 720)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=400" alt="Niña">
+                <div class="info-producto">
+                    <span class="categoria">NIÑA</span>
+                    <h3>Sneakers Blancos para Niña</h3>
+                    <div class="precio">L.680.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sneakers Blancos para Niña', 680)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Sneakers Casuales Blancos</h3>
+                    <div class="precio">L.2,100.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sneakers Casuales Blancos', 2100)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1515347619252-60a4bf4fff4f?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Zapatillas de Tacón Nude</h3>
+                    <div class="precio">L.1,850.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Zapatillas de Tacón Nude', 1850)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1607522370275-f14206abe5d3?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Tenis Running Pro Black</h3>
+                    <div class="precio">L.3,200.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Tenis Running Pro Black', 3200)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1535043934128-cf0b28d52f95?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Tacones Doradas</h3>
+                    <div class="precio">L.1,250.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sandalias de Verano Doradas', 1250)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Zapatos de Vestir en Cuero Café</h3>
+                    <div class="precio">L.2,800.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Zapatos de Vestir en Cuero Café', 2800)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1560343090-f0409e92791a?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Botines de Cuero Acua</h3>
+                    <div class="precio">L.2,450.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Botines de Cuero Negros', 2450)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1520639888713-7851133b1ed0?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Mocasines Casuales de Gamuza</h3>
+                    <div class="precio">L.1,900.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Mocasines Casuales de Gamuza', 1900)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Sneakers Urbanos Neón</h3>
+                    <div class="precio">L.2,150.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sneakers Urbanos Neón', 2150)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1582588678413-dbf45f4823e9?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Tenis Estilo Militar</h3>
+                    <div class="precio">L.3,100.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Botas Estilo Militar', 3100)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1562273138-f46be4ebdf33?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Mocasines Femeninos Clásicos</h3>
+                    <div class="precio">L.1,650.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Mocasines Femeninos Clásicos', 1650)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1560769629-975ec94e6a86?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Tenis Deportivos Multicolor</h3>
+                    <div class="precio">L.2,950.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Tenis Deportivos Multicolor', 2950)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1518049362265-d5b2a6467637?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Tacones de Lentejuela</h3>
+                    <div class="precio">L.2,300.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Tenis Deporte Fit Rosa', 2300)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1533867617858-e7b97e060509?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Zapatillas de Cuero Cafe</h3>
+                    <div class="precio">L.950.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sandalias Playeras Elegantes', 950)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1534653299134-96a171b61581?q=80&w=400" alt="Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Zapatos Ballerinas Cómodas</h3>
+                    <div class="precio">L.1,100.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Zapatos Ballerinas Cómodas', 1100)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=400" alt="Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Sneakers Retro High</h3>
+                    <div class="precio">L.3,500.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sneakers Retro High', 3500)">Agregar al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-carrito" id="modalCarrito">
+        <div class="contenido-carrito">
+            <h2>Tu Carrito de Compras</h2>
+            <ul class="lista-carrito" id="listaCarrito"></ul>
+            <div class="total-box">
+                Total: L.<span id="totalPrecio">0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <button class="btn-cerrar" onclick="cerrarCarrito()">Cerrar</button>
+                <button class="btn-pagar" onclick="abrirModalPago()">Finalizar Compra 💳</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-pago" id="modalPago">
+        <div class="contenido-pago">
+            <h2 style="margin-bottom: 15px; color: #0f172a;">Pago con Tarjeta de Crédito</h2>
+            <form onsubmit="procesarPago(event)">
+                <div class="campo-pago">
+                    <label>Nombre en la Tarjeta</label>
+                    <input type="text" placeholder="Ej. Juan Pérez" required>
+                </div>
+                <div class="campo-pago">
+                    <label>Número de Tarjeta</label>
+                    <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                </div>
+                <div class="fila-doble">
+                    <div class="campo-pago">
+                        <label>Vencimiento</label>
+                        <input type="text" placeholder="MM/AA" maxlength="5" required>
+                    </div>
+                    <div class="campo-pago">
+                        <label>CVV</label>
+                        <input type="password" placeholder="123" maxlength="4" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-confirmar-pago">Pagar Ahora</button>
+                <button type="button" class="btn-cerrar" style="width: 100%; margin-top: 8px;" onclick="cerrarModalPago()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+        function actualizarContador() {
+            document.getElementById('cant-carrito').innerText = carrito.length;
+        }
+
+        function guardarCarrito() {
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContador();
+        }
+
+        function agregarAlCarrito(nombre, precio) {
+            carrito.push({ nombre, precio });
+            guardarCarrito();
+            alert(`¡"${nombre}" se agregó al carrito correctamente!`);
+        }
+
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            guardarCarrito();
+            mostrarCarrito();
+        }
+
+        function calcularTotal() {
+            return carrito.reduce((sum, prod) => sum + prod.precio, 0);
+        }
+
+        function mostrarCarrito() {
+            const lista = document.getElementById('listaCarrito');
+            lista.innerHTML = '';
+
+            if (carrito.length === 0) {
+                lista.innerHTML = '<li>El carrito está vacío.</li>';
+            } else {
+                carrito.forEach((prod, index) => {
+                    lista.innerHTML += `
+                        <li class="item-carrito">
+                            <span>${prod.nombre} - <strong>L.${prod.precio}.00</strong></span>
+                            <button class="btn-eliminar-item" onclick="eliminarDelCarrito(${index})">✕</button>
+                        </li>
+                    `;
+                });
+            }
+
+            document.getElementById('totalPrecio').innerText = calcularTotal() + '.00';
+            document.getElementById('modalCarrito').style.display = 'flex';
+        }
+
+        function cerrarCarrito() {
+            document.getElementById('modalCarrito').style.display = 'none';
+        }
+
+        /* Funciones del Pago con Tarjeta de Crédito */
+        function abrirModalPago() {
+            if (carrito.length === 0) {
+                alert('Tu carrito está vacío.');
+                return;
+            }
+            cerrarCarrito();
+            document.getElementById('modalPago').style.display = 'flex';
+        }
+
+        function cerrarModalPago() {
+            document.getElementById('modalPago').style.display = 'none';
+        }
+
+        function procesarPago(event) {
+            event.preventDefault();
+            alert('¡Pago procesado con éxito! Gracias por tu compra.');
+            carrito = [];
+            guardarCarrito();
+            cerrarModalPago();
+        }
+
+        // Cargar estado inicial del carrito al abrir la página
+        actualizarContador();
+    </script>
+
+</body>
+</html>

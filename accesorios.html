@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accesorios - Tu Look Perfecto</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f8fafc; color: #1e293b; }
+
+        header {
+            background-color: #0f172a; display: flex; justify-content: space-between;
+            align-items: center; padding: 15px 50px; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .logo { color: #8b5cf6; font-size: 24px; font-weight: bold; }
+        nav { display: flex; align-items: center; gap: 20px; }
+        nav a { color: #cbd5e1; text-decoration: none; font-size: 16px; transition: color 0.3s; }
+        nav a:hover, nav a.active { color: #8b5cf6; font-weight: bold; }
+
+        /* Botón e Ícono del Carrito */
+        .btn-carrito-header {
+            background-color: #7c3aed;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s;
+        }
+        .btn-carrito-header:hover { background-color: #6d28d9; }
+        .badge {
+            background-color: #ef4444;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 12px;
+        }
+
+        .container { padding: 40px 20px; max-width: 1200px; margin: auto; text-align: center; }
+        .filtros { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        
+        .btn-filtro {
+            background-color: #e2e8f0; color: #1e293b; text-decoration: none;
+            padding: 8px 18px; border-radius: 20px; font-weight: 600; transition: 0.3s;
+        }
+        .btn-filtro:hover, .btn-filtro.activo { background-color: #7c3aed; color: white; }
+
+        .catalogo { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 25px; }
+        .card-producto { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: transform 0.3s; display: flex; flex-direction: column; justify-content: space-between; }
+        .card-producto:hover { transform: translateY(-5px); }
+        .card-producto img { width: 100%; height: 220px; object-fit: cover; }
+        .info-producto { padding: 15px; text-align: left; }
+        .categoria { font-size: 12px; color: #7c3aed; font-weight: bold; }
+        .info-producto h3 { font-size: 16px; margin: 5px 0; color: #0f172a; }
+        .precio { font-size: 18px; font-weight: bold; margin-top: 8px; color: #0f172a; }
+        .btn-comprar { width: 100%; background: #0f172a; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; transition: background 0.3s; }
+        .btn-comprar:hover { background-color: #7c3aed; }
+
+        /* Ventana Flotante del Carrito (Modal) */
+        .modal-carrito {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000;
+        }
+        .contenido-carrito {
+            background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 450px; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .contenido-carrito h2 { margin-bottom: 15px; color: #0f172a; }
+        .lista-carrito { list-style: none; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
+        .item-carrito { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .btn-eliminar-item { background: #ef4444; color: white; border: none; padding: 2px 7px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .total-box { font-size: 18px; font-weight: bold; margin-bottom: 20px; text-align: right; }
+        .btn-cerrar { background: #64748b; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+        .btn-pagar { background: #7c3aed; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* Ventana Flotante del Pago con Tarjeta */
+        .modal-pago {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); justify-content: center; align-items: center; z-index: 1100;
+        }
+        .contenido-pago {
+            background: white; padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; text-align: left;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .campo-pago { margin-bottom: 12px; }
+        .campo-pago label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; color: #0f172a; }
+        .campo-pago input { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+        .fila-doble { display: flex; gap: 10px; }
+        .btn-confirmar-pago { width: 100%; background: #10b981; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 15px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">Tu Look Perfecto</div>
+        <nav>
+            <a href="index.html">Inicio</a>
+            <a href="productos.html" class="active">Productos</a>
+            <a href="contacto.html">Contacto</a>
+            <button class="btn-carrito-header" onclick="mostrarCarrito()">
+                🛒 Carrito <span class="badge" id="cant-carrito">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1>Sección de Accesorios</h1>
+        <p>Los mejores complementos para perfeccionar tu estilo.</p>
+
+        <div class="filtros">
+            <a href="productos.html" class="btn-filtro">Todos</a>
+            <a href="ropa.html" class="btn-filtro">Ropa</a>
+            <a href="calzado.html" class="btn-filtro">Calzado</a>
+            <a href="accesorios.html" class="btn-filtro activo">Accesorios</a>
+        </div>
+
+        <div class="catalogo">
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1584917865442-de89df76afd3?q=80&w=400" alt="Bolso Rojo">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Bolso de Mano Elegante</h3>
+                    <div class="precio">L.3,500.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Bolso de Mano Elegante', 3500)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=400" alt="Reloj Minimalista">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Reloj Minimalista Plateado</h3>
+                    <div class="precio">L.1,900.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Reloj Minimalista Plateado', 1900)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=400" alt="Gorra Urbana">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Gorra Urbana Strapback</h3>
+                    <div class="precio">L.350.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Gorra Urbana Strapback', 350)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1627123424574-724758594e93?q=80&w=400" alt="Billetera de Cuero">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Billetera de Cuero Clásica</h3>
+                    <div class="precio">L.500.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Billetera de Cuero Clásica', 500)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?q=80&w=400" alt="Anillos y Joyería">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Aretes Plateados</h3>
+                    <div class="precio">L.280.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Set de Anillos Dorados', 280)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=400" alt="Mochila">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Mochila de Piel Urbana</h3>
+                    <div class="precio">L.1,400.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Mochila de Piel Urbana', 1400)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1605100804763-247f67b3557e?q=80&w=400" alt="Cinturón de Cuero">
+                <div class="info-producto">
+                    <span class="categoria">ACCESORIOS</span>
+                    <h3>Anillo Plateado</h3>
+                    <div class="precio">L.420.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Cinturón de Cuero Negro', 420)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=400" alt="Reloj Elegante Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Maquillaje</h3>
+                    <div class="precio">L.2,850.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Reloj Cronógrafo Dorado', 2850)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=400" alt="Collar de Plata Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Collar con Dije de Cristal</h3>
+                    <div class="precio">L.850.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Collar con Dije de Cristal', 850)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1508296695146-257a814070b4?q=80&w=400" alt="Gafas Polarizadas Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Gafas de Sol</h3>
+                    <div class="precio">L.780.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Gafas de Sol Aviador Polarizadas', 780)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?q=80&w=400" alt="Bolso de Hombro Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Bolso Crossbody Pastel</h3>
+                    <div class="precio">L.1,200.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Bolso Crossbody Pastel', 1200)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1601924994987-69e26d50dc26?q=80&w=400" alt="Bufanda Tejida Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Camisas</h3>
+                    <div class="precio">L.490.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Bufanda Tejida de Invierno', 490)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1624222247344-550fb60583dc?q=80&w=400" alt="Sombrero Fedora Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Cinturon Cafe</h3>
+                    <div class="precio">L.650.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Sombrero Fedora Clásico', 650)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?q=80&w=400" alt="Aretes Dorados Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Collar de Perlas</h3>
+                    <div class="precio">L.320.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Set de Aretes Arracadas Doradas', 320)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?q=80&w=400" alt="Portafolio de Trabajo Ejecutivo">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Cartera Negra</h3>
+                    <div class="precio">L.2,400.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Portafolio de Trabajo Ejecutivo', 2400)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?q=80&w=400" alt="Lentes Graduados Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Aretes Dorados</h3>
+                    <div class="precio">L.580.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Gafas Anti Luz Azul Cat Eye', 580)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1583209814683-c023dd293cc6?q=80&w=400" alt="Cinturón de Vestir Hombre">
+                <div class="info-producto">
+                    <span class="categoria">HOMBRE</span>
+                    <h3>Skincare</h3>
+                    <div class="precio">L.520.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Cinturón Reversible Café/Negro', 520)">Agregar al Carrito</button>
+                </div>
+            </div>
+
+            <div class="card-producto">
+                <img src="https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=400" alt="Billetera Mujer">
+                <div class="info-producto">
+                    <span class="categoria">MUJER</span>
+                    <h3>Bolsa Naranja</h3>
+                    <div class="precio">L.620.00</div>
+                    <button class="btn-comprar" onclick="agregarAlCarrito('Billetera Larga Rosa Pastel', 620)">Agregar al Carrito</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-carrito" id="modalCarrito">
+        <div class="contenido-carrito">
+            <h2>Tu Carrito de Compras</h2>
+            <ul class="lista-carrito" id="listaCarrito"></ul>
+            <div class="total-box">
+                Total: L.<span id="totalPrecio">0.00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <button class="btn-cerrar" onclick="cerrarCarrito()">Cerrar</button>
+                <button class="btn-pagar" onclick="abrirModalPago()">Finalizar Compra 💳</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-pago" id="modalPago">
+        <div class="contenido-pago">
+            <h2 style="margin-bottom: 15px; color: #0f172a;">Pago con Tarjeta de Crédito</h2>
+            <form onsubmit="procesarPago(event)">
+                <div class="campo-pago">
+                    <label>Nombre en la Tarjeta</label>
+                    <input type="text" placeholder="Ej. Ana Martínez" required>
+                </div>
+                <div class="campo-pago">
+                    <label>Número de Tarjeta</label>
+                    <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                </div>
+                <div class="fila-doble">
+                    <div class="campo-pago">
+                        <label>Vencimiento</label>
+                        <input type="text" placeholder="MM/AA" maxlength="5" required>
+                    </div>
+                    <div class="campo-pago">
+                        <label>CVV</label>
+                        <input type="password" placeholder="123" maxlength="4" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn-confirmar-pago">Pagar Ahora</button>
+                <button type="button" class="btn-cerrar" style="width: 100%; margin-top: 8px;" onclick="cerrarModalPago()">Cancelar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let carrito = JSON.parse(localStorage.getItem('carrito')) || [];
+
+        function actualizarContador() {
+            document.getElementById('cant-carrito').innerText = carrito.length;
+        }
+
+        function guardarCarrito() {
+            localStorage.setItem('carrito', JSON.stringify(carrito));
+            actualizarContador();
+        }
+
+        function agregarAlCarrito(nombre, precio) {
+            carrito.push({ nombre, precio });
+            guardarCarrito();
+            alert(`¡"${nombre}" se agregó al carrito correctamente!`);
+        }
+
+        function eliminarDelCarrito(index) {
+            carrito.splice(index, 1);
+            guardarCarrito();
+            mostrarCarrito();
+        }
+
+        function calcularTotal() {
+            return carrito.reduce((sum, prod) => sum + prod.precio, 0);
+        }
+
+        function mostrarCarrito() {
+            const lista = document.getElementById('listaCarrito');
+            lista.innerHTML = '';
+
+            if (carrito.length === 0) {
+                lista.innerHTML = '<li>El carrito está vacío.</li>';
+            } else {
+                carrito.forEach((prod, index) => {
+                    lista.innerHTML += `
+                        <li class="item-carrito">
+                            <span>${prod.nombre} - <strong>L.${prod.precio}.00</strong></span>
+                            <button class="btn-eliminar-item" onclick="eliminarDelCarrito(${index})">✕</button>
+                        </li>
+                    `;
+                });
+            }
+
+            document.getElementById('totalPrecio').innerText = calcularTotal() + '.00';
+            document.getElementById('modalCarrito').style.display = 'flex';
+        }
+
+        function cerrarCarrito() {
+            document.getElementById('modalCarrito').style.display = 'none';
+        }
+
+        /* Funciones del Pago con Tarjeta de Crédito */
+        function abrirModalPago() {
+            if (carrito.length === 0) {
+                alert('Tu carrito está vacío.');
+                return;
+            }
+            cerrarCarrito();
+            document.getElementById('modalPago').style.display = 'flex';
+        }
+
+        function cerrarModalPago() {
+            document.getElementById('modalPago').style.display = 'none';
+        }
+
+        function procesarPago(event) {
+            event.preventDefault();
+            alert('¡Pago procesado con éxito! Gracias por tu compra.');
+            carrito = [];
+            guardarCarrito();
+            cerrarModalPago();
+        }
+
+        // Cargar estado inicial del carrito al abrir la página
+        actualizarContador();
+    </script>
+
+</body>
+</html>
